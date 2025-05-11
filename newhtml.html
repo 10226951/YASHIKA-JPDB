@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Enrollment Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.3.2/tailwind.min.css">
+</head>
+<body class="bg-gray-100 p-10">
+    <div class="max-w-lg mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-4">Student Enrollment Form</h2>
+        <form id="enrollmentForm" action="/submit" method="POST">
+            <div class="mb-4">
+                <label for="rollNo" class="block font-medium">Roll No:</label>
+                <input type="text" id="rollNo" name="rollNo" class="w-full p-2 border rounded" autofocus required>
+            </div>
+            <div class="mb-4">
+                <label for="fullName" class="block font-medium">Full Name:</label>
+                <input type="text" id="fullName" name="fullName" class="w-full p-2 border rounded" disabled required>
+            </div>
+            <div class="mb-4">
+                <label for="class" class="block font-medium">Class:</label>
+                <input type="text" id="class" name="class" class="w-full p-2 border rounded" disabled required>
+            </div>
+            <div class="mb-4">
+                <label for="birthDate" class="block font-medium">Birth Date:</label>
+                <input type="date" id="birthDate" name="birthDate" class="w-full p-2 border rounded" disabled required>
+            </div>
+            <div class="mb-4">
+                <label for="address" class="block font-medium">Address:</label>
+                <input type="text" id="address" name="address" class="w-full p-2 border rounded" disabled required>
+            </div>
+            <div class="mb-4">
+                <label for="enrollmentDate" class="block font-medium">Enrollment Date:</label>
+                <input type="date" id="enrollmentDate" name="enrollmentDate" class="w-full p-2 border rounded" disabled required>
+            </div>
+            <div class="flex justify-between">
+                <button type="submit" id="saveBtn" class="bg-blue-500 text-white py-2 px-4 rounded" disabled>Save</button>
+                <button type="button" id="updateBtn" class="bg-green-500 text-white py-2 px-4 rounded" disabled>Update</button>
+                <button type="reset" id="resetBtn" class="bg-gray-500 text-white py-2 px-4 rounded">Reset</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const rollNoInput = document.getElementById('rollNo');
+        const inputs = document.querySelectorAll('#enrollmentForm input:not(#rollNo)');
+        const saveBtn = document.getElementById('saveBtn');
+        const updateBtn = document.getElementById('updateBtn');
+
+        rollNoInput.addEventListener('input', async () => {
+            const rollNo = rollNoInput.value.trim();
+            if (rollNo) {
+                try {
+                    const response = await fetch(`/check/${rollNo}`);
+                    const data = await response.json();
+
+                    if (!data.exists) {
+                        saveBtn.disabled = false;
+                        updateBtn.disabled = true;
+                        inputs.forEach(input => input.disabled = false);
+                    } else {
+                        saveBtn.disabled = true;
+                        updateBtn.disabled = false;
+                        inputs.forEach(input => input.disabled = false);
+                        rollNoInput.disabled = true;
+                        document.getElementById('fullName').value = data.fullName;
+                        document.getElementById('class').value = data.class;
+                        document.getElementById('birthDate').value = data.birthDate;
+                        document.getElementById('address').value = data.address;
+                        document.getElementById('enrollmentDate').value = data.enrollmentDate;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            } else {
+                saveBtn.disabled = true;
+                updateBtn.disabled = true;
+                inputs.forEach(input => input.disabled = true);
+            }
+        });
+    </script>
+</body>
+</html>
